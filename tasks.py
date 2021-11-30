@@ -51,4 +51,4 @@ class Tasks(commands.Cog):
         ]
         
         for stock in stocks:
-            print(request.get(f'https://tornsy.com/api/{stock.lower()}))
+            print(request.get(f'https://tornsy.com/api/{stock.lower()}'))
