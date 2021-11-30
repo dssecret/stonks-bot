@@ -93,16 +93,19 @@ async def stocks_calculate():
         'TCC',
         'ASS'
     ]
+    print(stocks)
     
     tasks = []
     
     async def fetch(url, session):
+        print(url)
         async with session.get(url) as response:
             return await response.read()
     
     async def get():
         async with aiohttp.ClientSession() as session:
             for stock in stocks:
+                print(f'Gettings {stock}')
                 tasks.append(asyncio.ensure_future(fetch(f'https://tornsy.com/api/{stock.lower()}', session)))
             responses = await asyncio.gather(*tasks)
             print(responses)
