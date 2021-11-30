@@ -8,7 +8,7 @@ import logging
 import sys
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 assert sys.version_info >= (3, 6), "Requires Python 3.6 or newer"
 
@@ -31,8 +31,7 @@ except FileNotFoundError:
     data = {
         'bottoken': '',
         'prefix': '!',
-        'keys': [],
-        'stock_data': {}
+        'keys': []
     }
     with open(f'settings.json', 'w') as file:
         json.dump(data, file, indent=4)
@@ -56,6 +55,43 @@ async def on_ready():
         guild_count += 1
 
     print(f'Bot is in {guild_count} guilds.')
+
+@tasks.loop(minutes=1)
+async def stocks_calculate():
+    stocks = [
+        'TSB',
+        'TCB',
+        'SYS',
+        'LAG',
+        'IOU',
+        'GRN',
+        'THS',
+        'YAZ',
+        'TCT',
+        'CNC',
+        'MSG',
+        'TMI',
+        'TCP',
+        'IIL',
+        'FHG',
+        'SYM',
+        'LSC',
+        'PRN',
+        'EWM',
+        'TCM',
+        'ELT',
+        'HRG',
+        'TGP',
+        'MUN',
+        'WSU',
+        'IST',
+        'BAG',
+        'EVL',
+        'MCS',
+        'WLT',
+        'TCC',
+        'ASS'
+    ]
 
 
 @bot.command()
