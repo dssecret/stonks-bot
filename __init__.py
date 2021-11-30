@@ -7,6 +7,7 @@ import json
 import logging
 import sys
 
+import aiohttp
 import discord
 from discord.ext import commands, tasks
 
@@ -92,6 +93,23 @@ async def stocks_calculate():
         'TCC',
         'ASS'
     ]
+    
+    tasks = []
+    
+    async def fetch(url, session):
+        async with session.get(url) as response:
+            return await response.read()
+    
+    async def get():
+        async with aiohttp.ClientSession() as session:
+            for stock in stocks:
+                tasks.append(asyncio.ensure_future(fetch(f'https://tornsy.com/api/{stock.lower()}', session))
+            responses = await asyncio.gather(*tasks)
+            print(responses)
+    
+    loop = asyncio.get_event_loop()
+    future = asyncio.ensure_future(get())
+    loop.run_until_complete(future)
 
 
 @bot.command()
