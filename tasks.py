@@ -6,6 +6,7 @@
 import discord
 from discord.ext import commands, tasks
 import requests
+import pandas
 
 
 class Tasks(commands.Cog):
