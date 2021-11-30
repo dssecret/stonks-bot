@@ -11,6 +11,8 @@ import aiohttp
 import discord
 from discord.ext import commands, tasks
 
+import tasks
+
 assert sys.version_info >= (3, 6), "Requires Python 3.6 or newer"
 
 logger = logging.getLogger('discord')
@@ -56,63 +58,7 @@ async def on_ready():
         guild_count += 1
 
     print(f'Bot is in {guild_count} guilds.')
-
-@tasks.loop(minutes=1)
-async def stocks_calculate():
-    stocks = [
-        'TSB',
-        'TCB',
-        'SYS',
-        'LAG',
-        'IOU',
-        'GRN',
-        'THS',
-        'YAZ',
-        'TCT',
-        'CNC',
-        'MSG',
-        'TMI',
-        'TCP',
-        'IIL',
-        'FHG',
-        'SYM',
-        'LSC',
-        'PRN',
-        'EWM',
-        'TCM',
-        'ELT',
-        'HRG',
-        'TGP',
-        'MUN',
-        'WSU',
-        'IST',
-        'BAG',
-        'EVL',
-        'MCS',
-        'WLT',
-        'TCC',
-        'ASS'
-    ]
-    print(stocks)
-    
-    tasks = []
-    
-    async def fetch(url, session):
-        print(url)
-        async with session.get(url) as response:
-            return await response.read()
-    
-    async def get():
-        async with aiohttp.ClientSession() as session:
-            for stock in stocks:
-                print(f'Gettings {stock}')
-                tasks.append(asyncio.ensure_future(fetch(f'https://tornsy.com/api/{stock.lower()}', session)))
-            responses = await asyncio.gather(*tasks)
-            print(responses)
-    
-    loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(get())
-    loop.run_until_complete(future)
+    bot.add_cog(tasks.Tasks(bot))
 
 
 @bot.command()
@@ -136,4 +82,3 @@ async def ping(ctx):
 
 if __name__ == '__main__':
     bot.run(data['bottoken'])
-    stocks_calculate.start()
