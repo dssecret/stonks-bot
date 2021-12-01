@@ -15,7 +15,7 @@ class Tasks(commands.Cog):
         self.bollinger.start()
         
     @tasks.loop(minutes=1)
-    async def bollinger(self, window=90, std=1):
+    async def bollinger(self, window=1440, std=2):
         stocks = [
             'TSB',
             'TCB',
@@ -73,7 +73,11 @@ class Tasks(commands.Cog):
                 embed.add_field(name='Lower Moving Average', value=prices.tail(1)['lma'])
                 embed.add_field(name='Upper Moving Average', value=prices.tail(1)['uma'])
                 
-                channel = discord.utils.get(self.bot.guilds[0].channels, name='stonks')
+                channel = discord.utils.get(self.bot.guilds[0].channels, name=stock.lower())
+                
+                if channel is None:
+                    channel = self.bot.guilds[0].create_text_channel(stock.lower(), category=discord.utils.get(self.bot.guilds[0].categories, name='Stocks'))
+
                 await channel.send(embed=embed)
             elif float(prices.tail(1)['lma']) > float(prices.tail(1)['price']):
                 embed = discord.Embed()
@@ -83,6 +87,8 @@ class Tasks(commands.Cog):
                 embed.add_field(name='Lower Moving Average', value=prices.tail(1)['lma'])
                 embed.add_field(name='Upper Moving Average', value=prices.tail(1)['uma'])
                 
-                channel = discord.utils.get(self.bot.guilds[0].channels, name='stonks')
+                channel = discord.utils.get(self.bot.guilds[0].channels, name=stock.lower())
+                if channel is None:
+                    channel = self.bot.guilds[0].create_text_channel(stock.lower(), category=discord.utils.get(self.bot.guilds[0].categories, name='Stocks'))
                 await channel.send(embed=embed)
             
