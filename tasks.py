@@ -15,7 +15,7 @@ class Tasks(commands.Cog):
         self.bollinger.start()
         
     @tasks.loop(minutes=1)
-    async def bollinger(self, window=20, std=1):
+    async def bollinger(self, window=90, std=1):
         stocks = [
             'TSB',
             'TCB',
