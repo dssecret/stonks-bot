@@ -56,7 +56,6 @@ class Tasks(commands.Cog):
             prices = pandas.DataFrame(columns=['price', 'timestamp'])
             rows = 0
             for row in data[::-1]:
-                print(row)
                 if rows >= window:
                     break
                 
