@@ -15,7 +15,7 @@ class Tasks(commands.Cog):
         self.bollinger.start()
         
     @tasks.loop(minutes=1)
-    async def bollinger(self, window=1440, std=2):
+    async def bollinger(self, window=1000, std=2):
         stocks = [
             'TSB',
             'TCB',
@@ -53,32 +53,11 @@ class Tasks(commands.Cog):
         
         for stock in stocks:
             data = requests.get(f'https://tornsy.com/api/{stock.lower()}').json()['data']
-            prices = pandas.DataFrame(columns=['price', 'timestamp'])
-            rows = 0
-            for row in data[::-1]:
-                if rows >= window:
-                    break
-                
-                prices.loc[rows] = [row[1], row[0]]
-                rows += 1
+            prices = pandas.DataFrame(data, columns=['timestamp', 'price', 'total_shares'])
             prices['ma'] = prices.price.rolling(window=window).mean()
             prices['uma'] = prices.price.rolling(window=window).mean() + (prices.price.rolling(window=window).std() * std)
             prices['lma'] = prices.price.rolling(window=window).mean() - (prices.price.rolling(window=window).std() * std)
             if float(prices.tail(1)['uma']) < float(prices.tail(1)['price']):
-                embed = discord.Embed()
-                embed.title = f'BUY Order on {stock}'
-                embed.description = f'Buy order on {stock} due to Bollinger Bands.'
-                embed.add_field(name='Current Price', value=float(prices.tail(1)['price']))
-                embed.add_field(name='Lower Moving Average', value=prices.tail(1)['lma'])
-                embed.add_field(name='Upper Moving Average', value=prices.tail(1)['uma'])
-                
-                channel = discord.utils.get(self.bot.guilds[0].channels, name=stock.lower())
-                
-                if channel is None:
-                    channel = self.bot.guilds[0].create_text_channel(stock.lower(), category=discord.utils.get(self.bot.guilds[0].categories, name='Stocks'))
-
-                await channel.send(embed=embed)
-            elif float(prices.tail(1)['lma']) > float(prices.tail(1)['price']):
                 embed = discord.Embed()
                 embed.title = f'SELL Order on {stock}'
                 embed.description = f'Sell order on {stock} due to Bollinger Bands.'
@@ -87,7 +66,21 @@ class Tasks(commands.Cog):
                 embed.add_field(name='Upper Moving Average', value=prices.tail(1)['uma'])
                 
                 channel = discord.utils.get(self.bot.guilds[0].channels, name=stock.lower())
+                
                 if channel is None:
-                    channel = self.bot.guilds[0].create_text_channel(stock.lower(), category=discord.utils.get(self.bot.guilds[0].categories, name='Stocks'))
+                    channel = await self.bot.guilds[0].create_text_channel(stock.lower(), category=discord.utils.get(self.bot.guilds[0].categories, name='Stocks'))
+
+                await channel.send(embed=embed)
+            elif float(prices.tail(1)['lma']) > float(prices.tail(1)['price']):
+                embed = discord.Embed()
+                embed.title = f'BUY Order on {stock}'
+                embed.description = f'Buy order on {stock} due to Bollinger Bands.'
+                embed.add_field(name='Current Price', value=float(prices.tail(1)['price']))
+                embed.add_field(name='Lower Moving Average', value=prices.tail(1)['lma'])
+                embed.add_field(name='Upper Moving Average', value=prices.tail(1)['uma'])
+                
+                channel = discord.utils.get(self.bot.guilds[0].channels, name=stock.lower())
+                if channel is None:
+                    channel = await self.bot.guilds[0].create_text_channel(stock.lower(), category=discord.utils.get(self.bot.guilds[0].categories, name='Stocks'))
                 await channel.send(embed=embed)
             
