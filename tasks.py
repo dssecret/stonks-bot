@@ -7,6 +7,7 @@ import discord
 from discord.ext import commands, tasks
 import requests
 import pandas
+import logging
 
 
 class Tasks(commands.Cog):
@@ -52,7 +53,11 @@ class Tasks(commands.Cog):
         ]
         
         for stock in stocks:
-            data = requests.get(f'https://tornsy.com/api/{stock.lower()}').json()['data']
+            try:
+                data = requests.get(f'https://tornsy.com/api/{stock.lower()}')
+                data = data.json()['data']
+            except Exception:
+                continue
             prices = pandas.DataFrame(data, columns=['timestamp', 'price', 'total_shares'])
             prices['ma'] = prices.price.rolling(window=window).mean()
             prices['uma'] = prices.price.rolling(window=window).mean() + (prices.price.rolling(window=window).std() * std)
